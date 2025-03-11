@@ -2561,7 +2561,7 @@ impl<E: EthSpec> BeaconState<E> {
         Ok(proof)
     }
 
-    fn generate_proof(
+    pub fn generate_proof(
         &self,
         field_index: usize,
         leaves: &[Hash256],
