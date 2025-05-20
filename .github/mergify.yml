@@ -1,6 +1,7 @@
 pull_request_rules:
   - name: Ask to resolve conflict
     conditions:
+      - -closed
       - conflict
       - -author=dependabot[bot]
       - or:
@@ -12,6 +13,64 @@ pull_request_rules:
       comment:
         message: This pull request has merge conflicts. Could you please resolve them
           @{{author}}? 🙏
+      label:
+        add:
+          - waiting-on-author
+        remove:
+          - ready-for-review
+
+  - name: Ask to resolve CI failures
+    conditions:
+      - -closed
+      - or:
+          - check-skipped=test-suite-success
+          - check-skipped=local-testnet-success
+          - check-failure=test-suite-success
+          - check-failure=local-testnet-success
+    actions:
+      comment:
+        message: Some required checks have failed. Could you please take a look @{{author}}? 🙏
+      label:
+        add:
+          - waiting-on-author
+        remove:
+          - ready-for-review
+
+  - name: Update labels when PR is unblocked
+    conditions:
+      - -closed
+      - -draft
+      - label=waiting-on-author
+      - -conflict
+      # Unfortunately, it doesn't look like there's an easy way to check for PRs pending
+      # CI workflows approvals.
+      - check-success=test-suite-success
+      - check-success=local-testnet-success
+      - "#review-requested > 0"
+    actions:
+      label:
+        remove:
+          - waiting-on-author
+        add:
+          - ready-for-review
+      comment:
+        message: >
+          All required checks have passed and there are no merge conflicts.
+          This pull request may now be ready for another review.
+
+  - name: Close stale pull request after 30 days of inactivity
+    conditions:
+      - -closed
+      - label=waiting-on-author
+      - updated-at<=30 days ago
+    actions:
+      close:
+        message: >
+          Hi @{{author}}, this pull request has been closed automatically due to 30 days of inactivity.
+          If you’d like to continue working on it, feel free to reopen at any time.
+      label:
+        add:
+          - stale
 
   - name: Approve trivial maintainer PRs
     conditions:
