@@ -2760,7 +2760,7 @@ impl<E: EthSpec> BeaconState<E> {
         Ok(proof)
     }
 
-    fn generate_proof(
+    pub fn generate_proof(
         &self,
         field_index: usize,
         leaves: &[Hash256],
@@ -2775,7 +2775,7 @@ impl<E: EthSpec> BeaconState<E> {
         Ok(proof)
     }
 
-    fn get_beacon_state_leaves(&self) -> Vec<Hash256> {
+    pub fn get_beacon_state_leaves(&self) -> Vec<Hash256> {
         let mut leaves = vec![];
         #[allow(clippy::arithmetic_side_effects)]
         match self {
