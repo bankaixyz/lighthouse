@@ -68,6 +68,7 @@ pub const BLOB_KZG_COMMITMENTS_INDEX: usize = 11;
 #[serde(bound = "E: EthSpec, Payload: AbstractExecPayload<E>")]
 #[tree_hash(enum_behaviour = "transparent")]
 #[arbitrary(bound = "E: EthSpec, Payload: AbstractExecPayload<E>")]
+#[tree_hash(enum_behaviour = "transparent")]
 pub struct BeaconBlockBody<E: EthSpec, Payload: AbstractExecPayload<E> = FullPayload<E>> {
     pub randao_reveal: Signature,
     pub eth1_data: Eth1Data,
@@ -155,7 +156,7 @@ impl<'a, E: EthSpec, Payload: AbstractExecPayload<E>> BeaconBlockBodyRef<'a, E, 
         }
     }
 
-    pub(crate) fn body_merkle_leaves(&self) -> Vec<Hash256> {
+    pub fn body_merkle_leaves(&self) -> Vec<Hash256> {
         let mut leaves = vec![];
         match self {
             Self::Base(body) => {

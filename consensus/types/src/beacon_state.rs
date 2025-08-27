@@ -20,8 +20,8 @@ use std::{fmt, mem, sync::Arc};
 use superstruct::superstruct;
 use swap_or_not_shuffle::compute_shuffled_index;
 use test_random_derive::TestRandom;
-use tree_hash::TreeHash;
-use tree_hash_derive::TreeHash;
+pub use tree_hash::TreeHash;
+pub use tree_hash_derive::TreeHash;
 
 pub use self::committee_cache::{
     compute_committee_index_in_epoch, compute_committee_range_in_epoch, epoch_committee_count,
@@ -2591,6 +2591,16 @@ impl<E: EthSpec> BeaconState<E> {
         ))
     }
 
+    /// Specialised deserialisation method that uses the ForkName as context
+    #[allow(clippy::arithmetic_side_effects)]
+    pub fn from_fork_ssz_bytes(bytes: &[u8], fork_name: ForkName) -> Result<Self, ssz::DecodeError> {
+        Ok(map_fork_name!(
+            fork_name,
+            Self,
+            <_>::from_ssz_bytes(bytes)?
+        ))
+    }
+
     #[allow(clippy::arithmetic_side_effects)]
     pub fn apply_pending_mutations(&mut self) -> Result<(), Error> {
         match self {
@@ -2674,7 +2684,7 @@ impl<E: EthSpec> BeaconState<E> {
         Ok(proof)
     }
 
-    fn generate_proof(
+    pub fn generate_proof(
         &self,
         field_index: usize,
         leaves: &[Hash256],
@@ -2689,7 +2699,7 @@ impl<E: EthSpec> BeaconState<E> {
         Ok(proof)
     }
 
-    fn get_beacon_state_leaves(&self) -> Vec<Hash256> {
+    pub fn get_beacon_state_leaves(&self) -> Vec<Hash256> {
         let mut leaves = vec![];
         #[allow(clippy::arithmetic_side_effects)]
         match self {
