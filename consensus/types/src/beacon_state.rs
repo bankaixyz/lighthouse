@@ -2632,6 +2632,12 @@ impl<E: EthSpec> BeaconState<E> {
     }
 }
 
+impl<E: EthSpec> ForkVersionDecode for BeaconState<E> {
+    fn from_ssz_bytes_by_fork(bytes: &[u8], fork_name: ForkName) -> Result<Self, ssz::DecodeError> {
+        Ok(map_fork_name!(fork_name, Self, <_>::from_ssz_bytes(bytes)?))
+    }
+}
+
 impl<E: EthSpec> BeaconState<E> {
     /// The number of fields of the `BeaconState` rounded up to the nearest power of two.
     ///
@@ -2672,15 +2678,6 @@ impl<E: EthSpec> BeaconState<E> {
             Self,
             <_>::from_ssz_bytes(bytes)?
         ))
-    }
-
-    /// Specialised deserialisation method that uses the ForkName as context
-    #[allow(clippy::arithmetic_side_effects)]
-    pub fn from_fork_ssz_bytes(
-        bytes: &[u8],
-        fork_name: ForkName,
-    ) -> Result<Self, ssz::DecodeError> {
-        Ok(map_fork_name!(fork_name, Self, <_>::from_ssz_bytes(bytes)?))
     }
 
     #[allow(clippy::arithmetic_side_effects)]
